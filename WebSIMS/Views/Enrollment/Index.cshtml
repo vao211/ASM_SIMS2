@@ -1,0 +1,203 @@
+@model List<WebSIMS.Models.Entities.Enrollments>
+
+@{
+    ViewData["Title"] = "Course Enrollment Management";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student";
+    var isAdmin = userRole == "Admin";
+    var isFaculty = userRole == "Faculty";
+    var isStudent = userRole == "Student";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Course Enrollment Management</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+        <li class="breadcrumb-item active">Course Enrollment</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    
+    @if (isAdmin || isFaculty)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-user-plus me-1"></i>
+                Enroll Student in Course
+            </div>
+            <div class="card-body">
+                <form asp-action="Enroll" method="post" class="row g-3">
+                    @Html.AntiForgeryToken()
+                    <div class="col-md-4">
+                        <label class="form-label">Select Student</label>
+                        <select name="studentId" class="form-select" required>
+                            <option value="">-- Select student --</option>
+                            @foreach (var student in ViewBag.Students ?? new List<object>())
+                            {
+                                <option value="@student.StudentID">@student.StudentCode - @student.FirstName @student.LastName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Select Course</label>
+                        <select name="courseId" class="form-select" required>
+                            <option value="">-- Select course --</option>
+                            @foreach (var course in ViewBag.Courses ?? new List<object>())
+                            {
+                                <option value="@course.CourseID">@course.CourseCode - @course.CourseName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block">
+                            <i class="fas fa-user-plus"></i> Enroll
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Enrollment List
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <table id="datatablesSimple" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Enrollment Date</th>
+                            <th>Grade</th>
+                            @if (isAdmin || isFaculty)
+                            {
+                                <th>Actions</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var enrollment in Model)
+                        {
+                            <tr>
+                                <td>@enrollment.EnrollmentID</td>
+                                <td>
+                                    @if (enrollment.Student != null)
+                                    {
+                                        @($"{enrollment.Student.FirstName} {enrollment.Student.LastName} ({enrollment.Student.StudentCode})")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Student not found</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (enrollment.Course != null)
+                                    {
+                                        @($"{enrollment.Course.CourseCode} - {enrollment.Course.CourseName}")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Course not found</span>
+                                    }
+                                </td>
+                                <td>@(enrollment.EnrollmentDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                <td>@(enrollment.Grade ?? "N/A")</td>
+                                @if (isAdmin || isFaculty)
+                                {
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="StudentEnrollments" asp-route-studentId="@enrollment.StudentID" 
+                                                class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> View Student
+                                            </a>
+                                            <a asp-action="CourseEnrollments" asp-route-courseId="@enrollment.CourseID" 
+                                               class="btn btn-sm btn-warning">
+                                                <i class="fas fa-book"></i> View Course
+                                            </a>
+                                            <a asp-action="UpdateGrade" asp-route-studentId="@enrollment.StudentID" 
+                                               asp-route-courseId="@enrollment.CourseID" class="btn btn-sm btn-success">
+                                                <i class="fas fa-edit"></i> Update Grade
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-primary" 
+                                                    onclick="showGradeInput(@enrollment.StudentID, @enrollment.CourseID, '@(enrollment.Grade ?? "")')">
+                                                <i class="fas fa-plus"></i> Enter Grade
+                                            </button>
+                                             @if (isAdmin)
+                                             {
+                                                 <form asp-action="RemoveEnrollment" method="post" style="display: inline;">
+                                                     @Html.AntiForgeryToken()
+                                                     <input type="hidden" name="studentId" value="@enrollment.StudentID" />
+                                                     <input type="hidden" name="courseId" value="@enrollment.CourseID" />
+                                                                                                           <button type="submit" class="btn btn-sm btn-danger" 
+                                                              onclick="return confirm('Are you sure you want to cancel this enrollment?')">
+                                                          <i class="fas fa-trash"></i> Cancel
+                                                      </button>
+                                                 </form>
+                                             }
+                                        </div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No enrollments found in the system.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="gradeModal" tabindex="-1" aria-labelledby="gradeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gradeModalLabel">Enter Grade</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="gradeForm" method="post" asp-action="UpdateGrade">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" id="studentId" name="studentId" />
+                    <input type="hidden" id="courseId" name="courseId" />
+                    
+                    <div class="mb-3">
+                        <label for="gradeInput" class="form-label">Grade</label>
+                        <input type="text" class="form-control" id="gradeInput" name="grade" 
+                               placeholder="Enter grade (e.g., 8.5, A, B+, etc.)" required />
+                        <small class="form-text text-muted"></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Grade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

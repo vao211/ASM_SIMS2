@@ -1,0 +1,69 @@
+﻿@model IEnumerable<WebSIMS.Models.Entities.Courses>
+
+@{
+    ViewData["Title"] = "Course List";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student";
+    var isAdmin = userRole == "Admin";
+    var isFaculty = userRole == "Faculty";
+    var isStudent = userRole == "Student";
+}
+
+<div class="container d-flex flex-column align-items-center">
+    <h2>Course List</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show w-50" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show w-50" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (isAdmin)
+    {
+        <a asp-action="Create" class="btn btn-primary my-3">Add New Course</a>
+    }
+
+    <table class="table table-bordered table-striped w-100">
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Description</th>
+                <th>Credits</th>
+                <th>Department</th>
+                @if (isAdmin)
+                {
+                    <th>Actions</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CourseCode</td>
+                    <td>@item.CourseName</td>
+                    <td>@item.Description</td>
+                    <td>@item.Credits</td>
+                    <td>@item.Department</td>
+                    @if (isAdmin)
+                    {
+                        <td class="d-flex justify-content-around">
+                            <a asp-action="Edit" asp-route-id="@item.CourseID" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.CourseID" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

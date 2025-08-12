@@ -1,0 +1,76 @@
+﻿@model IEnumerable<WebSIMS.Models.Entities.Faculty>
+
+@{
+    ViewData["Title"] = "Faculty List";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">👨‍🏫 Faculty List</h2>
+        <a asp-action="Create" class="btn btn-success px-4 py-2 transition-btn">
+            + Add New Faculty
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle text-center mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Faculty ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Hire Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var faculty in Model)
+                            {
+                                <tr>
+                                    <td>@faculty.FacultyID</td>
+                                    <td>@faculty.FirstName</td>
+                                    <td>@faculty.LastName</td>
+                                    <td>@faculty.Email</td>
+                                    <td>@faculty.HireDate.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a asp-action="Edit" asp-route-id="@faculty.FacultyID" class="btn btn-sm btn-warning transition-btn">Edit</a>
+                                            <a asp-action="Delete" asp-route-id="@faculty.FacultyID" class="btn btn-sm btn-danger transition-btn">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-muted py-3">No faculties found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

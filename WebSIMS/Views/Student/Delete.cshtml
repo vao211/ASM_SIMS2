@@ -1,0 +1,39 @@
+﻿@model WebSIMS.Models.Entities.Student
+
+@{
+    ViewData["Title"] = "Delete Student";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h2 class="mb-4 text-danger">Delete Student</h2>
+                <h4>Are you sure you want to delete this student?</h4>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <p><strong>Student ID:</strong> @Model.StudentID</p>
+                        <p><strong>First Name:</strong> @Model.FirstName</p>
+                        <p><strong>Last Name:</strong> @Model.LastName</p>
+                        <p><strong>Email:</strong> @Model.Email</p>
+                        <p><strong>Address:</strong> @Model.Address</p>
+                        <p><strong>Phone:</strong> @Model.Phone</p>
+                        <p><strong>Gender:</strong> @Model.Gender</p>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="StudentID" />
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

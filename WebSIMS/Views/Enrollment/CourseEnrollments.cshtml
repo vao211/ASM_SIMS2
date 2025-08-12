@@ -1,0 +1,90 @@
+@model List<WebSIMS.Models.Entities.Enrollments>
+
+@{
+    ViewData["Title"] = "Students of the Course";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+
+    var course = ViewBag.Course as WebSIMS.Models.Entities.Courses;
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Students of the Course</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Enrollment" asp-action="Index">Enroll to course</a></li>
+        <li class="breadcrumb-item active">Students of the Course</li>
+    </ol>
+
+    @if (course != null)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Course Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Course code:</strong> @course.CourseCode</p>
+                <p><strong>Course Name:</strong> @course.CourseName</p>
+                <p><strong>Describe:</strong> @course.Description</p>
+                <p><strong>Credits:</strong> @course.Credits</p>
+                <p><strong>Department:</strong> @course.Department</p>
+            </div>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            List of Registered Students
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <table id="datatablesSimple" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Student code</th>
+                            <th>Full name</th>
+                            <th>Date of birth</th>
+                            <th>Sex</th>
+                            <th>Email</th>
+                            <th>Phone number</th>
+                            <th>Registration date</th>
+                            <th>point</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var enrollment in Model)
+                        {
+                            <tr>
+                                <td>@enrollment.Student?.StudentCode</td>
+                                <td>@enrollment.Student?.FirstName @enrollment.Student?.LastName</td>
+                                <td>@(enrollment.Student?.DateOfBirth?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                <td>@enrollment.Student?.Gender</td>
+                                <td>@enrollment.Student?.Email</td>
+                                <td>@enrollment.Student?.Phone</td>
+                                <td>@(enrollment.EnrollmentDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                <td>@(enrollment.Grade ?? "N/A")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    This course has no students registered yet.
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <a asp-controller="Enrollment" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Come back
+        </a>
+    </div>
+</div>
+
+@* @section Scripts { *@
+@*     <script src="~/sims/js/datatables-simple-demo.js"></script> *@
+@* } *@

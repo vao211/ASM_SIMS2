@@ -1,0 +1,117 @@
+﻿@model WebSIMS.Models.ViewModels.Dashboard.DashboardViewModel
+@using System.Security.Claims
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+    ViewBag.Title = "Dashboard Overview";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewBag.Title</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Overview</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row my-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card bg-primary text-white h-100 shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <i class="fas fa-user-graduate fa-3x"></i>
+                        <div class="text-end">
+                            <div class="fs-4 fw-bold">Total Students</div>
+                            <div class="fs-2">@Model.TotalStudents</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-center">
+                    <a href="@Url.Action("Index", "Student")" class="btn btn-outline-light w-100">Go to Student Management</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card bg-success text-white h-100 shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <i class="fas fa-book fa-3x"></i>
+                        <div class="text-end">
+                            <div class="fs-4 fw-bold">Total Courses</div>
+                            <div class="fs-2">@Model.TotalCourses</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-center">
+                    <a href="@Url.Action("Index", "Course")" class="btn btn-outline-light w-100">Go to Course Management</a>
+                </div>
+            </div>
+        </div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card bg-info text-white h-100 shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                            <div class="text-end">
+                                <div class="fs-4 fw-bold">Faculty Management</div>
+                                <div class="fs-5">Manage faculty members</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-center">
+                        <a href="@Url.Action("Index", "Faculty")" class="btn btn-outline-light w-100">Go to Faculty Management</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="alert alert-secondary text-center shadow-sm" role="alert">
+        Hello, you are logged in as a @Model.Role
+    </div>
+
+    <h4 class="mt-4">Course List</h4>
+    <div class="card mb-4 shadow">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Active Courses
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover" id="courseTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in Model.Courses)
+                        {
+                            <tr>
+                                <td>@course.CourseCode</td>
+                                <td>@course.CourseName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
